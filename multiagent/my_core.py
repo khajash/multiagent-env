@@ -15,8 +15,6 @@ class ContactDetector(contactListener):
             if agent.body in [contact.fixtureA.body, contact.fixtureB.body]:
                 if self.world.goal_block.body in [contact.fixtureA.body, contact.fixtureB.body]:
                     agent.goal_contact = True
-                    # print("block and agent in contact!")
-                # print([contact.fixtureA.body.userData, contact.fixtureB.body.userData])
 
     def EndContact(self, contact):
         for agent in self.world.agents:
@@ -192,23 +190,6 @@ class Boundary(Entity):
 
     def create(self, walls):
         self.walls = walls
-        # borders = [(0, 1/2), (1, 1/2), (1/2, 0), (1/2, 1)]
-        # for i, border in enumerate(borders):
-        #     if i < 2:
-        #         box_shape = [world.bounds, world.viewer_height/world.scale]
-        #     else:
-        #         box_shape = [world.viewer_width/world.scale, world.bounds]
-
-        #     wall = self.world.CreateStaticBody(
-        #         position    = (
-        #             world.viewer_width  / world.scale * border[0], 
-        #             world.viewer_height / world.scale * border[1]),
-        #         fixtures    = fixtureDef(
-        #             shape   = polygonShape(box=(box_shape)),
-        #             ),
-        #         userData = 'wall'
-        #         )
-        #     self.walls.append(wall)
 
 # properties of agent entities
 class Agent(Entity):
@@ -273,7 +254,6 @@ class Agent(Entity):
                 userData        = self.name,
                 )
 
-        
 
     def get_lateral_velocity(self):
         currentRightNormal = self.body.GetWorldVector(localVector=(1.0, 0.0))
