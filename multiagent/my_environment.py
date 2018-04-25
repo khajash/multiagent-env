@@ -215,12 +215,8 @@ class MultiAgentEnv(gym.Env):
             self.world.scaled_epsilon/self.world.scale, 30, 
             color=self.world.goal_block.goal_color).add_attr(t)
 
-        # print(self.world.drawlist)
         # DRAW OBJECTS
         for obj in self.world.drawlist:
-            # print(type(obj))
-            # print(isinstance(obj, Boundary))
-            # print(obj.name)
 
             if obj.name == "Boundary":
                 for w in obj.walls:
@@ -228,7 +224,7 @@ class MultiAgentEnv(gym.Env):
                         trans = f.body.transform
                         path = [trans*v for v in f.shape.vertices]
                         self.viewer.draw_polygon(path, color=obj.color)
-            # print(obj.walls)
+
             else:
                 for f in obj.body.fixtures:
                     trans = f.body.transform
