@@ -76,17 +76,26 @@ class MultiAgentEnv(gym.Env):
         # record observation for each agent
         for agent in self.agents:
             obs_n.append(self._get_obs(agent))
-            reward_n.append(self._get_reward(agent))
-            done_n.append(self._get_done(agent))
-
+            d = self._get_done(agent)
+            r = self._get_reward(agent)
+            if d: 
+                # print("block in place!!!!!!!!!!!!!!!")
+                r += self.world.shaped_puzzle_reward
+            
+            reward_n.append(r)
+            done_n.append(d)
             info_n['n'].append(self._get_info(agent))
-
+        if all(done_n): print("block in place!!!!!!!!!!!!!!!\nreward: %s" % reward_n)
         # all agents get total reward in cooperative case
         reward = np.sum(reward_n)
         if self.shared_reward:
             reward_n = [reward] * self.n
 
         return obs_n, reward_n, done_n, info_n
+
+    def update_params(self, timestep, decay):
+        self.world._update_params(timestep, decay)
+        
 
     def reset(self):
         # reset world
@@ -127,6 +136,7 @@ class MultiAgentEnv(gym.Env):
 
     # set env action for a particular agent
     def _set_action(self, action, agent, time=None):
+        # print("action to take: ", list(action))
         agent.action.turn = action[0]
         agent.action.push = action[1]
 
@@ -207,16 +217,20 @@ class MultiAgentEnv(gym.Env):
             ], 
             color=bound_color,
             linewidth=3)
-
+        
         # DRAW FINAL POINTS
-        fx, fy = self.world.scale_units(self.world.goal_block.state.pos)
+        fx, fy = self.world.scale_units(self.world.goal_block.goal[0:2])
         t = rendering.Transform(translation=(fx, fy))
         self.viewer.draw_circle(
-            self.world.scaled_epsilon/self.world.scale, 30, 
+            self.world.epsilon*self.world.viewer_width/self.world.scale, 30, 
             color=self.world.goal_block.goal_color).add_attr(t)
-
+        
+        # print(self.world.drawlist)
         # DRAW OBJECTS
         for obj in self.world.drawlist:
+            # print(type(obj))
+            # print(isinstance(obj, Boundary))
+            # print(obj.name)
 
             if obj.name == "Boundary":
                 for w in obj.walls:
@@ -224,7 +238,7 @@ class MultiAgentEnv(gym.Env):
                         trans = f.body.transform
                         path = [trans*v for v in f.shape.vertices]
                         self.viewer.draw_polygon(path, color=obj.color)
-
+            # print(obj.walls)
             else:
                 for f in obj.body.fixtures:
                     trans = f.body.transform
@@ -254,6 +268,7 @@ class MultiAgentEnv(gym.Env):
                         t = rendering.Transform(translation=(x, y))
                         self.viewer.draw_circle(0.005, 30, color=obj.pt_color).add_attr(t)
 
+        
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
