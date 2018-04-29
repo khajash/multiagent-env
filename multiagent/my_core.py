@@ -52,7 +52,7 @@ class AgentState(EntityState):
 class BlockState(EntityState):
     def __init__(self):
         super(BlockState, self).__init__()
-        self.in_place = False
+        self._in_place = False
 
 ###### ACTION CLASS #######################################################################
 
@@ -128,15 +128,20 @@ class Block(Entity):
         x, y                = self._state.pos
 
         if abs(f_x - x) > epsilon:
+            self._in_place = False
             return False
         if abs(f_y - y) > epsilon:
+            self._in_place = False
             return False
-
+        self._in_place = True
         return True
 
     @property
     def vertices(self):
         return self._vertices
+
+    def scale_vertices(self, scale):
+        self._vertices = [scale(v) for v in self._vertices]
 
     @property
     def goal(self):
@@ -199,7 +204,7 @@ class Agent(Entity):
         self.dynamic      = True
         self.acts         = True
         self.density      = 17.3
-        self._max_force   = 0.25
+        self._max_force   = 0.5
         self._max_torque  = 0.0005
         self.goal_contact = False
 
@@ -254,6 +259,7 @@ class Agent(Entity):
                 userData        = self.name,
                 )
 
+        
 
     def get_lateral_velocity(self):
         currentRightNormal = self.body.GetWorldVector(localVector=(1.0, 0.0))
