@@ -78,6 +78,7 @@ class MultiAgentEnv(gym.Env):
             obs_n.append(self._get_obs(agent))
             d = self._get_done(agent)
             r = self._get_reward(agent)
+            print(r)
             if d: 
                 # print("block in place!!!!!!!!!!!!!!!")
                 r += self.world.shaped_puzzle_reward
@@ -139,6 +140,7 @@ class MultiAgentEnv(gym.Env):
         # print("action to take: ", list(action))
         agent.action.turn = action[0]
         agent.action.push = action[1]
+        print(action)
 
     # reset rendering assets
     def _reset_render(self):
@@ -217,14 +219,14 @@ class MultiAgentEnv(gym.Env):
             ], 
             color=bound_color,
             linewidth=3)
-        
+
         # DRAW FINAL POINTS
         fx, fy = self.world.scale_units(self.world.goal_block.goal[0:2])
         t = rendering.Transform(translation=(fx, fy))
         self.viewer.draw_circle(
             self.world.epsilon*self.world.viewer_width/self.world.scale, 30, 
             color=self.world.goal_block.goal_color).add_attr(t)
-        
+
         # print(self.world.drawlist)
         # DRAW OBJECTS
         for obj in self.world.drawlist:
@@ -268,7 +270,6 @@ class MultiAgentEnv(gym.Env):
                         t = rendering.Transform(translation=(x, y))
                         self.viewer.draw_circle(0.005, 30, color=obj.pt_color).add_attr(t)
 
-        
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
