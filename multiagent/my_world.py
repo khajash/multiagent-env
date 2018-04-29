@@ -41,7 +41,7 @@ class World(object):
         self.soft_force     = True
         self.make_walls     = True
 
-        self.epsilon        = 0.1
+        self.epsilon        = 0.15
         self.shaping        = True
         self.scaled_epsilon = self.epsilon
 
@@ -82,10 +82,12 @@ class World(object):
 
     def initialize_blocks(self):
         for block in self.blocks:
-            x = np.random.uniform(self.border, self.viewer_width/self.scale/3-self.border)
+            x = np.random.uniform(self.viewer_width/self.scale/3+self.border, 
+                self.viewer_width/self.scale*2/3-self.border)
             y = np.random.uniform(self.border, self.viewer_height/self.scale-self.border)
             block.create(self.world, x, y)
             self.block_queue.append(block.name)
+            block.scale_vertices(lambda x: self.norm_units(x))
 
     def initialize_boundary(self):
         if self.boundary: #self.boundary.create(self.world)
@@ -121,7 +123,6 @@ class World(object):
                 self.goal_block = block
 
     def set_random_goal(self):
-    
         x = np.random.uniform(
             self.viewer_width / self.scale * 2/3 + self.border, 
             self.viewer_width / self.scale - self.border)
@@ -152,7 +153,8 @@ class World(object):
                 block.state.rel_pos = (x-Fx, y-Fy)
                 if block.state.dist: block.state.prev_dist = block.state.dist
                 block.state.dist = distance((x, y), (Fx, Fy))
-            block.state.in_place = block.in_place(self.scaled_epsilon)
+            # print("State Update")
+            block.state._in_place = block.in_place(self.scaled_epsilon)
 
         for i, agent in enumerate(self.agents):
             # global inforamtion
@@ -180,7 +182,7 @@ class World(object):
                 Ax, Ay = self.norm_units(o.body.worldCenter)
                 agent.state.rel_agent_pos.append((x-Ax, y-Ay))
 
-    def set_reward_params(self, agentDelta=50, agentDistance=0.0, blockDelta=25, blockDistance=0.0,
+    def set_reward_params(self, agentDelta=25, agentDistance=0.25, blockDelta=100, blockDistance=0.0,
         puzzleComp=10000, outOfBounds=1000, blkOutOfBounds=100):
 
         self.weight_deltaAgent          = agentDelta
@@ -190,6 +192,12 @@ class World(object):
         self.puzzle_complete_reward     = puzzleComp
         self.out_of_bounds_penalty      = outOfBounds
         self.blk_out_of_bounds_penalty  = blkOutOfBounds
+
+    def _update_params(self, timestep, decay):
+        if not self.make_walls:
+            self.shaped_bounds_penalty = self.out_of_bounds_penalty*decay**(-timestep)
+            self.shaped_blk_bounds_penalty = self.blk_out_of_bounds_penalty*decay**(-timestep)
+        self.shaped_puzzle_reward = self.puzzle_complete_reward*decay**(-timestep)
 
     @property
     def delta_agent(self):
@@ -260,5 +268,5 @@ class World(object):
         force /= 50
         soft_vect = unit_vector(agent, self.goal_block)
         soft_force = (force*soft_vect[0], force*soft_vect[1])
-        self.goal_block.body.ApplyForce(soft_force, self.goal_block.state.pos, True)
+        self.goal_block.body.ApplyForce(soft_force, self.goal_block.body.worldCenter, True)
 
