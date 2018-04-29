@@ -47,48 +47,20 @@ class Scenario(BaseScenario):
 
         world.drawlist = [world.boundary] + world.blocks + world.agents
 
- #       # # random properties for landmarks
-        # for i, landmark in enumerate(world.landmarks):
-        #     landmark.color = np.array([0.1, 0.1, 0.1])
-        #     landmark.color[i + 1] += 0.8
-        #     landmark.index = i
-        # # set goal landmark
-        # goal = np.random.choice(world.landmarks)
-        # for i, agent in enumerate(world.agents):
-        #     agent.goal_a = goal
-        #     agent.color = np.array([0.25, 0.25, 0.25])
-        #     if agent.adversary:
-        #         agent.color = np.array([0.75, 0.25, 0.25])
-        #     else:
-        #         j = goal.index
-        #         agent.color[j + 1] += 0.5
-        # # set random initial states
-        # for agent in world.agents:
-        #     agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-        #     agent.state.p_vel = np.zeros(world.dim_p)
-        #     agent.state.c = np.zeros(world.dim_c)
-        # for i, landmark in enumerate(world.landmarks):
-        #     landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-        #     landmark.state.p_vel = np.zeros(world.dim_p)
 
     def reward(self, agent, world):
         reward = 0
 
         # DELTA / DISTANCE of block 
         reward += (world.goal_block.state.prev_dist - world.goal_block.state.dist) * world.delta_block
-        # # print("block deltadistance: %s" % (deltaDist*200)) # <0.05
         reward -= world.dist_block * world.goal_block.state.dist
 
-        # Delta Agent
+        # DELTA / DISTANCE of Agent
         reward += (agent.state.prev_dist - agent.state.dist) * world.delta_agent
-        # Distance Agent
         reward -= world.dist_agent * agent.state.dist
 
         return reward
 
-    # def agent_reward(self, agent, world):
-    #     # the distance to the goal
-    #     return -np.sqrt(np.sum(np.square(agent.state.p_pos - agent.goal_a.state.p_pos)))
                
     def observation(self, agent, world):
         state = [
@@ -126,10 +98,6 @@ class Scenario(BaseScenario):
 
     def done(self, agent, world):
         # if block in place -- done
-        # implement boundary later?
-        # print("CHECKING IF DONE")
-        # print("goal block return: ", world.goal_block.state._in_place)
-        # if world.goal_block.in_place(world.epsilon/world.scale):
         if world.goal_block.state._in_place:
             print("IN PLACE")
             return True
