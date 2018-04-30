@@ -82,7 +82,7 @@ class Entity(object):
         # restitution of object (0. = no bounce)
         self.restitution = 0.0
         # friction between objects
-        self.friction = 0.15
+        self.friction = 0.01
         # linear damping (affects lin. movement through space)
         self.linear_damping = 5.0
         # angular damping (affects rotation through space)
@@ -116,6 +116,7 @@ class Block(Entity):
         self._vertices  = []
         self._goal      = None
         self._state     = BlockState()
+        self.friction   = 0.15
 
     def create(self, world, x, y):
         pass
@@ -204,8 +205,8 @@ class Agent(Entity):
         self.dynamic      = True
         self.acts         = True
         self.density      = 17.3
-        self._max_force   = 0.5
-        self._max_torque  = 0.0005
+        self._max_force   = 1.0
+        self._max_torque  = 0.001
         self.goal_contact = False
 
         # action
