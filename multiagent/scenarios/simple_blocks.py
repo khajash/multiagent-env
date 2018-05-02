@@ -1,11 +1,8 @@
 import numpy as np
-# from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
 from my_gym.maenvs.multiagent.my_world import World
 from my_gym.maenvs.multiagent.my_core import Agent, TBlock, Boundary
 
-# from my_world import World
-# from my_core import Agent, TBlock, Boundary
 import random
 
 class Scenario(BaseScenario):
@@ -47,20 +44,20 @@ class Scenario(BaseScenario):
 
         world.drawlist = [world.boundary] + world.blocks + world.agents
 
-
     def reward(self, agent, world):
         reward = 0
 
         # DELTA / DISTANCE of block 
-        reward += (world.goal_block.state.prev_dist - world.goal_block.state.dist) * world.delta_block
+        # reward += (world.goal_block.state.prev_dist - world.goal_block.state.dist) * world.delta_block
+        # # print("block deltadistance: %s" % (deltaDist*200)) # <0.05
         reward -= world.dist_block * world.goal_block.state.dist
 
-        # DELTA / DISTANCE of Agent
-        reward += (agent.state.prev_dist - agent.state.dist) * world.delta_agent
+        # Delta Agent
+        # reward += (agent.state.prev_dist - agent.state.dist) * world.delta_agent
+        # Distance Agent
         reward -= world.dist_agent * agent.state.dist
 
         return reward
-
                
     def observation(self, agent, world):
         state = [
@@ -91,15 +88,12 @@ class Scenario(BaseScenario):
             1.0 if world.goal_block.state._in_place else 0.0,
             ])
 
-        # print(agent.name, state)
-
         return np.array(state)
 
 
     def done(self, agent, world):
         # if block in place -- done
         if world.goal_block.state._in_place:
-            print("IN PLACE")
             return True
         return False
 
