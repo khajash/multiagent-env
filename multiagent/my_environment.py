@@ -49,18 +49,14 @@ class MultiAgentEnv(gym.Env):
                 self.action_space.append(act_space)
             else:
                 self.action_space.append(total_action_space[0])
+            
             # observation space
             obs_dim = len(observation_callback(agent, self.world))
             self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
-            # agent.action.c = np.zeros(self.world.dim_c)
 
         # rendering
         self.shared_viewer = shared_viewer
-        if self.shared_viewer:
-            self.viewers = [None]
-        # else:
-        #     self.viewers = [None] * self.n
-        # self._reset_render()
+        self.viewers = [None]
 
     def step(self, action_n):
         obs_n = []
@@ -80,13 +76,12 @@ class MultiAgentEnv(gym.Env):
             r = self._get_reward(agent)
             print(r)
             if d: 
-                # print("block in place!!!!!!!!!!!!!!!")
                 r += self.world.shaped_puzzle_reward
-            
             reward_n.append(r)
             done_n.append(d)
             info_n['n'].append(self._get_info(agent))
-        if all(done_n): print("block in place!!!!!!!!!!!!!!!\nreward: %s" % reward_n)
+        if all(done_n): 
+            print("block in place!!!!!!!!!!!!!!!\nreward: %s" % reward_n)
         # all agents get total reward in cooperative case
         reward = np.sum(reward_n)
         if self.shared_reward:
@@ -95,14 +90,11 @@ class MultiAgentEnv(gym.Env):
         return obs_n, reward_n, done_n, info_n
 
     def update_params(self, timestep, decay):
-        self.world._update_params(timestep, decay)
-        
+        self.world._update_params(timestep, decay)   
 
     def reset(self):
         # reset world
         self.reset_callback(self.world)
-        # reset renderer
-        # self._reset_render()
         # record observations for each agent
         obs_n = []
         self.agents = self.world.policy_agents
@@ -137,7 +129,6 @@ class MultiAgentEnv(gym.Env):
 
     # set env action for a particular agent
     def _set_action(self, action, agent, time=None):
-        # print("action to take: ", list(action))
         agent.action.turn = action[0]
         agent.action.push = action[1]
         print(action)
@@ -220,27 +211,22 @@ class MultiAgentEnv(gym.Env):
             color=bound_color,
             linewidth=3)
 
-        # DRAW FINAL POINTS
+        # draw final points
         fx, fy = self.world.scale_units(self.world.goal_block.goal[0:2])
         t = rendering.Transform(translation=(fx, fy))
         self.viewer.draw_circle(
             self.world.epsilon*self.world.viewer_width/self.world.scale, 30, 
             color=self.world.goal_block.goal_color).add_attr(t)
 
-        # print(self.world.drawlist)
-        # DRAW OBJECTS
+        # draw objects
         for obj in self.world.drawlist:
-            # print(type(obj))
-            # print(isinstance(obj, Boundary))
-            # print(obj.name)
-
+            
             if obj.name == "Boundary":
                 for w in obj.walls:
                     for f in w.fixtures:
                         trans = f.body.transform
                         path = [trans*v for v in f.shape.vertices]
                         self.viewer.draw_polygon(path, color=obj.color)
-            # print(obj.walls)
             else:
                 for f in obj.body.fixtures:
                     trans = f.body.transform
@@ -251,7 +237,7 @@ class MultiAgentEnv(gym.Env):
                     else:
                         self.viewer.draw_polygon(path, color=obj.color)
 
-                # DRAW CP
+                # draw centerpoint
                 if 'agent' in obj.name:
                     x, y = obj.body.worldCenter
                     # print('position: ', obj.position)
@@ -270,8 +256,4 @@ class MultiAgentEnv(gym.Env):
                         t = rendering.Transform(translation=(x, y))
                         self.viewer.draw_circle(0.005, 30, color=obj.pt_color).add_attr(t)
 
-
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
-
-
-
