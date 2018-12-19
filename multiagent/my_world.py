@@ -1,9 +1,7 @@
 import numpy as np
 import Box2D
 from Box2D.b2 import (polygonShape, circleShape, staticBody, dynamicBody, vec2, fixtureDef, contactListener, dot)
-# from my_core import Agent, Walls, TBlock, ContactDetector 
 from my_gym.maenvs.multiagent.my_core import Agent, TBlock, Boundary, ContactDetector
-
 
 ###### HELPER FUNCTION #######################################################################
 
