@@ -127,7 +127,7 @@ class World(object):
         y = np.random.uniform(
             self.border, 
             self.viewer_height / self.scale - self.border)
-        # Normalize units
+        # normalize units
         x, y = self.norm_units((x,y))
         # set goal
         self.goal_block.set_goal(x, y, 0)
@@ -226,18 +226,19 @@ class World(object):
 
     # update state of the world
     def step(self):
-        # take agent step??
+        # apply action for each agent
         for agent in self.agents:
             self.apply_agent_force(agent)
             if self.soft_force: self.apply_soft_force(agent)
-
+        
+        # take step for whole world
         self.world.Step(1.0/self.fps, 6*30, 2*30)
         self.update_states()
 
 
     def apply_agent_force(self, agent):
         f = agent._body.GetWorldVector(localVector=(0.0, 1.0))
-        p = agent._body.GetWorldPoint(localPoint=(0.0, 0.0)) # change apply point? prev. (0.0, 2.0)
+        p = agent._body.GetWorldPoint(localPoint=(0.0, 0.0)) 
         
         f = ( f[0] * agent.action.push * agent.max_force, 
               f[1] * agent.action.push * agent.max_force )
@@ -248,21 +249,18 @@ class World(object):
 
         # APPLY turn
         torque = abs(agent.action.turn)*agent.max_torque
-        # print(torque)
         if abs(agent.action.push) < 0.1: agent.action.turn = 0
 
         if agent.action.turn < 0:
             agent._body.ApplyTorque(torque, True)
-            # print(torque, "apply left torque")
         elif agent.action.turn > 0:
             agent._body.ApplyTorque(-torque, True)
-            # print(torque, "apply right torque")
         else:
             agent._body.ApplyTorque(0, True)
 
     def apply_soft_force(self, agent):
         # APPLY soft force
-        force = 10**(-distance(agent.state.pos, self.goal_block.state.pos)) # CHANGE STRENGTH of soft force over time
+        force = 10**(-distance(agent.state.pos, self.goal_block.state.pos)) # change strength of soft force over time
         force /= 50
         soft_vect = unit_vector(agent, self.goal_block)
         soft_force = (force*soft_vect[0], force*soft_vect[1])
