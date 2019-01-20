@@ -40,21 +40,15 @@ class Scenario(BaseScenario):
         world.set_random_goal()
         world.update_states()
 
-        # self.done_status = None
-
         world.drawlist = [world.boundary] + world.blocks + world.agents
 
     def reward(self, agent, world):
         reward = 0
 
-        # DELTA / DISTANCE of block 
-        # reward += (world.goal_block.state.prev_dist - world.goal_block.state.dist) * world.delta_block
-        # # print("block deltadistance: %s" % (deltaDist*200)) # <0.05
+        # distance of block to goal
         reward -= world.dist_block * world.goal_block.state.dist
 
-        # Delta Agent
-        # reward += (agent.state.prev_dist - agent.state.dist) * world.delta_agent
-        # Distance Agent
+        # distance of agent to block
         reward -= world.dist_agent * agent.state.dist
 
         return reward
