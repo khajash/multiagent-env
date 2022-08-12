@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.scenario import BaseScenario
-from my_gym.maenvs.multiagent.my_world import World
-from my_gym.maenvs.multiagent.my_core import Agent, TBlock, Boundary
+from multiagent.my_world import World
+from multiagent.my_core import Agent, TBlock, Boundary
 
 import random
 
